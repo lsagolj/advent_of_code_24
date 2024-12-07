@@ -5,7 +5,8 @@
 int count_lines(FILE *file, int *lines);
 int read_values(FILE *file, int *left, int *right, int line_count);
 void sort_list(int *list, size_t size);
-void total_distance(int lines, int *left, int *right, int *result);
+void total_distance(int line_count, int *left, int *right, int *result);
+void calc_similarity(int line_count, int *left, int *right, int *result);
 
 int main(int argc, char *argv[])
 {
@@ -13,6 +14,7 @@ int main(int argc, char *argv[])
     int ret = 0;
     int line_count = 0;
     int distance = 0;
+    int similarity = 0;
     int *left_list, *right_list;
 
     if (argc < 2) {
@@ -43,14 +45,20 @@ int main(int argc, char *argv[])
 
     sort_list(left_list, line_count);
     sort_list(right_list, line_count);
-
+    for (int i = 0; i < line_count; i++) {
+        printf("Left[%d] = %d, Right[%d] = %d\n", i, left_list[i], i, right_list[i]);
+    }
     total_distance(line_count, left_list, right_list, &distance);
     printf("Total distance is %d\n", distance);
+
+    calc_similarity(line_count, left_list, right_list, &similarity);
+    printf("Calculated similiartiy is %d\n", similarity);
 
 out:
     fclose(file);
     free(left_list);
     free(right_list);
+
     return ret;
 }
 
@@ -80,12 +88,11 @@ int read_values(FILE *file, int *left, int *right, int line_count)
         if (ret != 2) {
             printf("Error reading line %d. Expected two integers, got %d.\n", i + 1, ret);
             break;
-        }
-    }
-    return ret;
+        }main.c
 }
 
-int compare(const void *a, const void *b) {
+int compare(const void *a, const void *b) 
+{
     return (*(int *)a - *(int *)b);
 }
 
@@ -94,10 +101,22 @@ void sort_list(int *list, size_t size)
     qsort(list, size, sizeof(int), compare);
 }
 
-void total_distance(int lines, int *left, int *right, int *result)
+void total_distance(int line_count, int *left, int *right, int *result)
 {
-    for(int i = 0; i < lines; i++)
+    for(int i = 0; i < line_count; i++)
     {
         *result += abs(left[i] - right[i]);
+    }
+}
+
+void calc_similarity(int line_count, int *left, int *right, int *result)
+{
+    for(int i = 0; i < line_count; i++)
+    {
+        for(int j = 0; j < line_count; j++)
+        {
+            if (left[i] == right[j])
+                *result += left[i];
+        }
     }
 }
